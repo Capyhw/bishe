@@ -10,7 +10,10 @@ declare module '@vue/runtime-core' {
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElTable: typeof import('element-plus/es')['ElTable']
+    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElUpload: typeof import('element-plus/es')['ElUpload']
+    Test: typeof import('./src/components/test.vue')['default']
     UploadPic: typeof import('./src/components/uploadPic.vue')['default']
     Xlsx: typeof import('./src/components/xlsx.vue')['default']
   }

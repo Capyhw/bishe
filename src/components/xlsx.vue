@@ -1,18 +1,13 @@
 <template>
-  <div class="m-btn">
-    导入表格
-    <input
-      type="file"
-      accept=".xls,.xlsx"
-      class="upload-file"
-      @change="changeExcel($event)"
-    />
-  </div>
   <el-upload
     class="upload-demo"
+    accept=".xls,.xlsx"
+    ref="upload"
     drag
-    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-    multiple
+    :auto-upload="false"
+    :limit="1"
+    :on-exceed="handleExceed"
+    :on-change="change"
   >
     <template #trigger>
       <div>
@@ -25,59 +20,94 @@
       </div>
     </template>
     <template #tip>
-      <div class="el-upload__tip">
-        jpg/png files with a size less than 500kb
-      </div>
+      <div class="el-upload__tip">xls/xlsx files</div>
     </template>
-    <template #file> file </template>
   </el-upload>
+
+  <el-table
+    :data="tableData"
+    :default-sort="{ prop: '学号', order: 'descending' }"
+    stripe
+    border
+    max-height="60vh"
+    style="width: 100%"
+  >
+    <template v-for="(v, k, i) in tableData[0]">
+      <el-table-column
+        v-if="k == '作业'"
+        :prop="k"
+        :label="k"
+        sortable
+        :filters="[
+          { text: '已提交', value: '已提交' },
+          { text: '未提交', value: '未提交' },
+        ]"
+        :filter-method="filterTag"
+        filter-placement="bottom-start"
+      >
+      </el-table-column>
+      <el-table-column v-else :prop="k" :label="k" sortable> </el-table-column>
+    </template>
+  </el-table>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import * as XLSX from "xlsx";
+import {
+  ElMessage,
+  UploadFile,
+  UploadInstance,
+  UploadProps,
+  UploadRawFile,
+} from "element-plus";
+import { genFileId } from "element-plus";
 
-const tableData = ref([]); //表格数据
+//ref-upload
+const upload = ref<UploadInstance>();
 
-const dealExcel = (ws) => {
-  let keymap = {
-    // 转换的开头
-    姓名: "name",
-    工资月份: "month",
-    工资总金额: "money",
-    部门: "section",
-    职位: "job",
-  };
-  ws.forEach((sourceObj) => {
-    Object.keys(sourceObj).map((keys) => {
-      let newKey = keymap[keys];
-      if (newKey) {
-        sourceObj[newKey] = sourceObj[keys];
-        delete sourceObj[keys];
-      }
-    });
-  });
-  tableData.value = ws;
+//新文件替换旧文件
+const handleExceed: UploadProps["onExceed"] = (files: any[]) => {
+  upload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  upload.value!.handleStart(file);
 };
-const changeExcel = (e) => {
-  const files = e.target.files;
-  if (files.length <= 0) {
-    return false;
-  } else if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
-    return false;
+
+//表格数据接口
+interface TableData {
+  [x: string]: string;
+}
+//表格数据
+const tableData = ref<TableData[]>([]);
+//读取、解析表格
+const change = (file: UploadFile) => {
+  const orginFile = file.raw as File;
+  //判断文件类型
+  if (orginFile == null) {
+  } else if (!/\.(xls|xlsx)$/.test(orginFile.name.toLowerCase())) {
+    ElMessage.error("文件类型不正确");
+  } else {
+    // 读取表格数据
+    const fileReader = new FileReader();
+    fileReader.onload = (ev: Event) => {
+      const target = ev.target as FileReader;
+      const workbook = XLSX.read(target.result, {
+        type: "binary",
+      });
+      const wsname = workbook.SheetNames[0];
+      const ws: TableData[] = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);
+      console.log(ws);
+
+      tableData.value = ws; //赋值
+    };
+    fileReader.readAsBinaryString(orginFile);
   }
-  // 读取表格数据
-  const fileReader = new FileReader();
-  fileReader.onload = (ev) => {
-    const workbook = XLSX.read(ev.target.result, {
-      type: "binary",
-    });
-    const wsname = workbook.SheetNames[0];
-    const ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);
-    dealExcel(ws); //转换数据格式
-    tableData.value = ws; //赋值
-  };
-  fileReader.readAsBinaryString(files[0]);
+};
+
+//表格-作业-过滤
+const filterTag = (value: string, row: { [x: string]: string }) => {
+  return row["作业"] === value;
 };
 </script>
 

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2015",
     "useDefineForClassFields": true,
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "strict": true,
     "jsx": "preserve",
@@ -11,7 +11,8 @@
     "esModuleInterop": true,
     "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["element-plus/global"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

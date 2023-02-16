@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import UploadPic from "./components/uploadPic.vue";
 import xlsx from "./components/xlsx.vue";
 </script>

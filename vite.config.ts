@@ -11,7 +11,8 @@ export default defineConfig({
     vue(),
     AutoImport({
       resolvers: [
-        ElementPlusResolver(), // 自动导入图标组件
+        ElementPlusResolver(),
+        // 自动导入图标组件
         IconsResolver({
           prefix: "Icon",
         }),
@@ -19,7 +20,8 @@ export default defineConfig({
     }),
     Components({
       resolvers: [
-        ElementPlusResolver(), // 自动注册图标组件
+        ElementPlusResolver(),
+        // 自动注册图标组件
         IconsResolver({
           enabledCollections: ["ep"],
         }),

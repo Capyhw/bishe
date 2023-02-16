@@ -1,5 +1,11 @@
 <template>
-  <el-upload action="#" list-type="picture-card" :auto-upload="false" multiple>
+  <el-upload
+    action="#"
+    list-type="picture-card"
+    :auto-upload="false"
+    multiple
+    v-model:file-list="fileList"
+  >
     <template #trigger>
       <div class="trigger">
         <el-icon><Plus /></el-icon>
@@ -48,16 +54,23 @@ import type { UploadFile } from "element-plus";
 const dialogImageUrl = ref("");
 const dialogVisible = ref(false);
 const disabled = ref(false);
-
+const fileList = ref([] as UploadFile[]);
+//删除图片
 const handleRemove = (file: UploadFile) => {
-  console.log(file);
+  // console.log(file);
+  for (let i = 0; i < fileList.value.length; i++) {
+    if (fileList.value[i].uid === file.uid) {
+      fileList.value.splice(i, 1);
+      break;
+    }
+  }
 };
-
+//预览图片
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!;
   dialogVisible.value = true;
 };
-
+//下载图片
 const handleDownload = (file: UploadFile) => {
   console.log(file);
 };
